@@ -11,12 +11,35 @@ on:
 jobs:
   cypress-run:
     runs-on: ubuntu-22.04
-    # let's make sure our tests pass on Chrome browser
     name: E2E on Chrome
+    container: cypress/browsers:node18.12.0-chrome106-ff106
     steps:
       - uses: actions/checkout@v3
-      - uses: cypress-io/github-action@v5
-        with:
-          browser: chrome
+      - name: Install Cypress and Verify
+        run: |
+          npm ci
+          $(npm bin)/cypress verify
+      
+      - name: Run Cypress Tests
+        run: npm run test:chrome
+        continue-on-error: false
+        
+      - name: Copy Test Execution Videos and Screenshots
+        run: |
+          mkdir public
+          cp -r cypress/videos public/videos
+          cp -r cypress/screenshots public/screenshots
+          
+      - name: Merge Test Reports
+        run: npm run combine:report
+      
+      - name: Generate HTML Report
+        run: npm run generate:report
+
+      - name: Deploy Report Page to GH Page
+        uses: peaceiris/actions-gh-pages@v3.9.2
+        with: 
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
 
 
