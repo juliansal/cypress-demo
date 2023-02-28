@@ -39,5 +39,6 @@ public
 *.sublime-workspace
 sftp-config.json
 
+.yarn/
 *.lock
 cypress.config.js
